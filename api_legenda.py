@@ -11,6 +11,15 @@ DOWNLOAD_DIR = "/app/downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 def baixar_legenda(url, video_id):
+    cookies_file = "/app/cookies.json"  # Caminho do arquivo de cookies JSON
+
+    # Verifica se o arquivo de cookies existe e exibe o status
+    if not os.path.exists(cookies_file):
+        print(f"[DEBUG] Arquivo de cookies não encontrado em: {cookies_file}")
+        raise FileNotFoundError(f"Arquivo de cookies não encontrado: {cookies_file}")
+    
+    print(f"[DEBUG] Arquivo de cookies encontrado: {cookies_file}")
+
     # Comando atualizado para usar o arquivo de cookies
     comando = [
         "yt-dlp",
@@ -19,14 +28,16 @@ def baixar_legenda(url, video_id):
         "--skip-download",
         "--convert-subs", "vtt",
         "--no-part",  # Evita múltiplos arquivos de legenda
-        "--cookies", "/app/cookies.json",  # Caminho para o arquivo de cookies
+        "--cookies", cookies_file,  # Caminho para o arquivo de cookies
         "-o", f"{DOWNLOAD_DIR}/{video_id}.%(ext)s",
         url
     ]
     
     try:
         # Rodando o comando e capturando a saída
+        print(f"[DEBUG] Rodando comando: {comando}")  # Exibe o comando que está sendo executado
         resultado = subprocess.run(comando, check=True, capture_output=True, text=True)
+        
         print("stdout:", resultado.stdout)  # Exibe a saída do comando
         print("stderr:", resultado.stderr)  # Exibe o erro caso ocorra
     except subprocess.CalledProcessError as e:
