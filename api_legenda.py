@@ -1,15 +1,16 @@
 import subprocess
-import sys
 import re
 import os
 from fastapi import FastAPI, Query
 
 app = FastAPI()
 
+# Defina o diretório de downloads
 DOWNLOAD_DIR = "/app/downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 def baixar_legenda(url, video_id):
+    # Defina o comando para baixar a legenda usando yt-dlp
     comando = [
         "yt-dlp",
         "--write-auto-sub",
@@ -22,7 +23,7 @@ def baixar_legenda(url, video_id):
     ]
     
     try:
-        # Rodando o comando e capturando a saída
+        # Executa o comando e captura a saída
         resultado = subprocess.run(comando, check=True, capture_output=True, text=True)
         print("stdout:", resultado.stdout)  # Exibe a saída do comando
         print("stderr:", resultado.stderr)  # Exibe o erro caso ocorra
@@ -36,6 +37,7 @@ def baixar_legenda(url, video_id):
     return f"{DOWNLOAD_DIR}/{video_id}.pt.vtt"
 
 def limpar_vtt_conteudo(arquivo_vtt):
+    # Lê o arquivo VTT
     with open(arquivo_vtt, 'r', encoding='utf-8') as f:
         conteudo = f.read()
 
@@ -50,7 +52,7 @@ def limpar_vtt_conteudo(arquivo_vtt):
     conteudo = re.sub(r'\[&nbsp;__&nbsp;\]', '', conteudo)
     conteudo = re.sub(r' +', ' ', conteudo)
 
-    # Remover linhas repetidas
+    # Remove linhas repetidas
     linhas = conteudo.split('\n')
     linhas_filtradas = []
     for i, linha in enumerate(linhas):
@@ -58,17 +60,29 @@ def limpar_vtt_conteudo(arquivo_vtt):
             if linha.strip():
                 linhas_filtradas.append(linha.strip())
 
+    # Retorna o texto processado
     return ' '.join(linhas_filtradas)
 
 @app.get("/transcrever")
 def transcrever(url: str = Query(...)):
+    # Obtém o video_id a partir da URL
     video_id = url.split("v=")[-1].split("&")[0]
-    vtt_file = baixar_legenda(url, video_id)
-    texto = limpar_vtt_conteudo(vtt_file)
-    os.remove(vtt_file)
-    return {"status": "ok", "transcricao": texto}
+    
+    try:
+        # Baixa a legenda
+        vtt_file = baixar_legenda(url, video_id)
+        
+        # Limpa o conteúdo da legenda e a retorna
+        texto = limpar_vtt_conteudo(vtt_file)
+        
+        # Remove o arquivo de legenda após o processamento
+        os.remove(vtt_file)
+        
+        return {"status": "ok", "transcricao": texto}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
-# Healthcheck para o Easypanel
+# Endpoint de healthcheck para o Easypanel
 @app.get("/health")
 def health():
     return {"status": "ok"}
