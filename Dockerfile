@@ -9,14 +9,14 @@ RUN apt-get update && \
 # cria diretório de trabalho
 WORKDIR /app
 
-# copia o arquivo de cookies primeiro (isso garante que ele será copiado antes do código)
-COPY cookies.json /app/cookies.json
-
 # cria pasta para salvar legendas temporárias
 RUN mkdir /app/downloads
 
 # copia arquivos do projeto
 COPY . .
+
+# copia o arquivo cookies.json para o container
+COPY cookies.json /app/cookies.json
 
 # instala dependências python
 RUN pip install --no-cache-dir -r requirements.txt
