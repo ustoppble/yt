@@ -9,6 +9,9 @@ RUN apt-get update && \
 # cria diretório de trabalho
 WORKDIR /app
 
+# copia o arquivo de cookies primeiro (isso garante que ele será copiado antes do código)
+COPY cookies.json /app/cookies.json
+
 # cria pasta para salvar legendas temporárias
 RUN mkdir /app/downloads
 
@@ -23,4 +26,3 @@ EXPOSE 8000
 
 # roda a aplicação
 CMD ["uvicorn", "api_legenda:app", "--host", "0.0.0.0", "--port", "8000"]
-COPY cookies.json /app/cookies.json
