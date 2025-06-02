@@ -63,10 +63,16 @@ def limpar_vtt_conteudo(arquivo_vtt):
     conteudo = re.sub(r'<c>', '', conteudo)
     conteudo = re.sub(r'</c>', '', conteudo)
     conteudo = re.sub(r'\[&nbsp;__&nbsp;\]', '', conteudo)
-    conteudo = re.sub(r' +', ' ', conteudo)
+    conteudo = re.sub(r' +', ' ', conteudo)  # Remove múltiplos espaços em branco
+    
+    # Remove quebras de linha e mantém tudo em uma única linha
+    conteudo = conteudo.replace('\n', ' ')  # Substitui quebras de linha por espaço
 
-    # Remover linhas repetidas
-    linhas = conteudo.split('\n')
+    # Remove espaços extras no início e final da string
+    conteudo = conteudo.strip()
+
+    # Remove linhas repetidas
+    linhas = conteudo.split(' ')
     linhas_filtradas = []
     for i, linha in enumerate(linhas):
         if i == 0 or linha.strip() != linhas[i-1].strip():
