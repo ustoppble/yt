@@ -23,3 +23,4 @@ EXPOSE 8000
 
 # roda a aplicação
 CMD ["uvicorn", "api_legenda:app", "--host", "0.0.0.0", "--port", "8000"]
+COPY cookies.json /app/cookies.json
