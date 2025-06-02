@@ -11,7 +11,7 @@ DOWNLOAD_DIR = "/app/downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 def baixar_legenda(url, video_id):
-    cookies_file = "/app/cookies.json"  # Caminho do arquivo de cookies JSON
+    cookies_file = "/app/cookies_netscape.txt"  # Caminho correto do arquivo de cookies Netscape
 
     # Verifica se o arquivo de cookies existe e exibe o status
     if not os.path.exists(cookies_file):
