@@ -16,16 +16,30 @@ def baixar_legenda(url, video_id):
         "--sub-lang", "pt",
         "--skip-download",
         "--convert-subs", "vtt",
+        "--no-part",  # Evita múltiplos arquivos de legenda
         "-o", f"{DOWNLOAD_DIR}/{video_id}.%(ext)s",
         url
     ]
-    subprocess.run(comando, check=True)
+    
+    try:
+        # Rodando o comando e capturando a saída
+        resultado = subprocess.run(comando, check=True, capture_output=True, text=True)
+        print("stdout:", resultado.stdout)  # Exibe a saída do comando
+        print("stderr:", resultado.stderr)  # Exibe o erro caso ocorra
+    except subprocess.CalledProcessError as e:
+        # Captura o erro caso o comando falhe
+        print("Erro ao baixar legenda:", e)
+        print("stdout:", e.stdout)
+        print("stderr:", e.stderr)
+        raise Exception(f"Falha ao baixar legenda: {e.stderr}")
+
     return f"{DOWNLOAD_DIR}/{video_id}.pt.vtt"
 
 def limpar_vtt_conteudo(arquivo_vtt):
     with open(arquivo_vtt, 'r', encoding='utf-8') as f:
         conteudo = f.read()
 
+    # Limpeza do conteúdo do arquivo VTT
     conteudo = re.sub(r'WEBVTT.*?\n', '', conteudo, flags=re.DOTALL)
     conteudo = re.sub(r'Kind:.*?\n', '', conteudo, flags=re.DOTALL)
     conteudo = re.sub(r'Language:.*?\n', '', conteudo, flags=re.DOTALL)
@@ -36,6 +50,7 @@ def limpar_vtt_conteudo(arquivo_vtt):
     conteudo = re.sub(r'\[&nbsp;__&nbsp;\]', '', conteudo)
     conteudo = re.sub(r' +', ' ', conteudo)
 
+    # Remover linhas repetidas
     linhas = conteudo.split('\n')
     linhas_filtradas = []
     for i, linha in enumerate(linhas):
@@ -53,7 +68,7 @@ def transcrever(url: str = Query(...)):
     os.remove(vtt_file)
     return {"status": "ok", "transcricao": texto}
 
-# healthcheck pro easypanel
+# Healthcheck para o Easypanel
 @app.get("/health")
 def health():
     return {"status": "ok"}
