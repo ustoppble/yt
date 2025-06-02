@@ -19,7 +19,7 @@ def baixar_legenda(url, video_id):
         "--skip-download",
         "--convert-subs", "vtt",
         "--no-part",  # Evita múltiplos arquivos de legenda
-        "--cookies", "/app/cookies.txt",  # Caminho para o arquivo de cookies
+        "--cookies", "/app/cookies.json",  # Caminho para o arquivo de cookies
         "-o", f"{DOWNLOAD_DIR}/{video_id}.%(ext)s",
         url
     ]
